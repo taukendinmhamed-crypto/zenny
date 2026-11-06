@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <base href="/zenny/">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="description" content="Zenny — учёт денег без скучной части. Бесплатно и без лимитов.">
+  <meta name="theme-color" content="#07070A">
+
+  <!-- Install to home screen (iOS / Android) -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Zenny">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="manifest" href="manifest.json">
+  <title>Zenny</title>
+
+  <style>
+    html, body { margin: 0; height: 100%; background: #07070A; overflow: hidden;
+                 overscroll-behavior: none; -webkit-tap-highlight-color: transparent;
+                 -webkit-user-select: none; user-select: none; touch-action: manipulation; }
+    body { position: fixed; inset: 0; }
+    #splash { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
+              justify-content: center; gap: 18px; transition: opacity .4s ease; }
+    #splash img { width: 88px; height: 88px; border-radius: 22px; animation: pulse 1.6s ease-in-out infinite; }
+    #splash span { color: #9B9BA8; font: 500 14px -apple-system, system-ui, sans-serif; }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+  </style>
+
+  <!-- On-device receipt OCR in the browser (free, no limits). Loaded lazily on first scan. -->
+  <script>
+    window.zennyOcr = async function (url) {
+      if (!window.Tesseract) {
+        await new Promise(function (resolve, reject) {
+          var s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+          s.onload = resolve; s.onerror = reject;
+          document.head.appendChild(s);
+        });
+      }
+      var r = await Tesseract.recognize(url, 'rus+eng');
+      var lines = (r.data.lines || []).map(function (l) { return l.text.trim(); }).filter(Boolean);
+      return JSON.stringify(lines);
+    };
+  </script>
+</head>
+<body>
+  <div id="splash"><img src="icons/Icon-192.png" alt=""><span>Zenny</span></div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var s = document.getElementById('splash');
+      s.style.opacity = '0';
+      setTimeout(function () { s.remove(); }, 450);
+    });
+  </script>
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>
